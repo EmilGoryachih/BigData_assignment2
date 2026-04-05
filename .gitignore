@@ -3,6 +3,8 @@
 .venv.tar.gz
 generate_report_pdf.py
 desktop.ini
+app/generated_data/
+app/generated_data_100/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

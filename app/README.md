@@ -7,6 +7,12 @@ This folder stores the full local text corpus used for the final run.
 ### data_100
 This folder stores the fixed 100-document debug subset used for quick iteration and screenshots.
 
+### prepare_corpus_from_parquet.py
+This PySpark script reads a parquet file, extracts `id`, `title`, and `text`, and creates a local plain-text corpus with filenames in the required `<doc_id>_<doc_title>.txt` format.
+
+### prepare_corpus_from_parquet.sh
+This orchestration script uploads a parquet file to HDFS, runs `prepare_corpus_from_parquet.py`, and then continues with the normal `prepare_data.sh` flow to populate `/data` and `/input/data` in HDFS.
+
 ### mapreduce
 This folder stores the mapper `mapperx.py` and reducer `reducerx.py` scripts for the MapReduce pipelines.
 
@@ -14,7 +20,7 @@ This folder stores the mapper `mapperx.py` and reducer `reducerx.py` scripts for
 This Python CLI creates the Cassandra schema and loads index data from HDFS into Cassandra.
 
 ### app.sh
-The main entrypoint for the repository. It starts Hadoop services, prepares data, builds the index, loads it into Cassandra, and runs sample searches. The default mode is the full corpus in `data`, and `DATASET_MODE=debug` switches to `data_100`.
+The main entrypoint for the repository. It starts Hadoop services, prepares data, builds the index, loads it into Cassandra, and runs sample searches. The default mode is the full corpus in `data`, and `DATASET_MODE=debug` switches to `data_100`. If `PARQUET_INPUT_PATH` is provided, the corpus is first reproduced from parquet before the standard preparation flow continues.
 
 ### create_index.sh
 A script to create index data using MapReduce pipelines and store them in HDFS.

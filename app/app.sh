@@ -34,15 +34,29 @@ fi
 DATASET_MODE="${DATASET_MODE:-full}"
 RUN_INDEX="${RUN_INDEX:-1}"
 RUN_SAMPLE_SEARCHES="${RUN_SAMPLE_SEARCHES:-1}"
+PARQUET_INPUT_PATH="${PARQUET_INPUT_PATH:-}"
+HDFS_PARQUET_PATH="${HDFS_PARQUET_PATH:-/parquet/source.parquet}"
+PARQUET_DOC_COUNT="${PARQUET_DOC_COUNT:-}"
 
 if [ "$DATASET_MODE" = "full" ]; then
-  LOCAL_INPUT_DIR="data"
+  DEFAULT_LOCAL_INPUT_DIR="data"
+  GENERATED_LOCAL_INPUT_DIR="generated_data"
   HDFS_RAW_DIR="/data"
   HDFS_PREPARED_DIR="/input/data"
+  DEFAULT_DOC_COUNT="1000"
 else
-  LOCAL_INPUT_DIR="data_100"
+  DEFAULT_LOCAL_INPUT_DIR="data_100"
+  GENERATED_LOCAL_INPUT_DIR="generated_data_100"
   HDFS_RAW_DIR="/data_100"
   HDFS_PREPARED_DIR="/input/data_100"
+  DEFAULT_DOC_COUNT="100"
+fi
+
+if [ -n "$PARQUET_INPUT_PATH" ]; then
+  LOCAL_INPUT_DIR="$GENERATED_LOCAL_INPUT_DIR"
+  DOC_COUNT="${PARQUET_DOC_COUNT:-$DEFAULT_DOC_COUNT}"
+else
+  LOCAL_INPUT_DIR="$DEFAULT_LOCAL_INPUT_DIR"
 fi
 
 echo "Bootstrap dataset mode: $DATASET_MODE"
@@ -51,7 +65,12 @@ echo "HDFS raw dir: $HDFS_RAW_DIR"
 echo "HDFS prepared dir: $HDFS_PREPARED_DIR"
 
 # Prepare the corpus and optionally run indexing and sample searches.
-bash prepare_data.sh "$LOCAL_INPUT_DIR" "$HDFS_RAW_DIR" "$HDFS_PREPARED_DIR"
+if [ -n "$PARQUET_INPUT_PATH" ]; then
+  echo "Bootstrap parquet source: $PARQUET_INPUT_PATH"
+  bash prepare_corpus_from_parquet.sh "$PARQUET_INPUT_PATH" "$LOCAL_INPUT_DIR" "$DOC_COUNT" "$HDFS_PARQUET_PATH" "$HDFS_RAW_DIR" "$HDFS_PREPARED_DIR"
+else
+  bash prepare_data.sh "$LOCAL_INPUT_DIR" "$HDFS_RAW_DIR" "$HDFS_PREPARED_DIR"
+fi
 
 if [ "$RUN_INDEX" = "1" ]; then
   echo

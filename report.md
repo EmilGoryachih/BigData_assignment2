@@ -44,13 +44,31 @@ Examples of valid document names include:
 
 The document id is taken from the prefix before the first underscore. The remaining part of the filename is treated as the document title. The document body is stored as plain text inside the file. The solution does not depend on XML or JSON files.
 
+For grading stability, the repository ships with the prepared local corpora in `app/data` and `app/data_100`. At the same time, the repository also includes a reproducible parquet-based preparation path. The scripts `prepare_corpus_from_parquet.py` and `prepare_corpus_from_parquet.sh` can read a parquet file with Spark, recreate the local UTF-8 text documents, upload them to HDFS, and continue with the standard indexing preparation flow. This means the repository supports both a ready-to-run text corpus and a formal parquet-to-text data preparation path.
+
 ### 1.3 Data Preparation in HDFS with PySpark
 
 The assignment requires a preparation step that creates an HDFS input of the following form:
 
 `<doc_id>    <doc_title>    <doc_text>`
 
-This was implemented with two scripts:
+This was implemented with two layers of scripts.
+
+The first layer is optional and reproduces the local text corpus from parquet:
+
+1. `prepare_corpus_from_parquet.sh`
+2. `prepare_corpus_from_parquet.py`
+
+`prepare_corpus_from_parquet.sh` performs the following steps:
+
+1. Upload the source parquet file to HDFS.
+2. Run a PySpark job that reads the parquet file.
+3. Select the `id`, `title`, and `text` columns.
+4. Create UTF-8 text files with the required `<doc_id>_<doc_title>.txt` naming format.
+5. Store the recreated corpus in a local generated folder.
+6. Continue with the standard HDFS preparation flow.
+
+The second layer prepares the HDFS indexing input from the local text corpus:
 
 1. `prepare_data.sh`
 2. `prepare_data.py`
@@ -290,6 +308,21 @@ docker compose up
 ```
 
 The main entrypoint is `app/app.sh`. It starts the Hadoop services, reuses or creates the Python virtual environment, prepares the chosen corpus, runs indexing, loads Cassandra, and executes sample queries.
+
+If a parquet file is available, the same repository can reproduce the local corpus before indexing. For example, if `app/a.parquet` is present, the full run can be started with:
+
+```powershell
+$env:PARQUET_INPUT_PATH='/app/a.parquet'
+docker compose up
+```
+
+and the debug run on 100 recreated documents can be started with:
+
+```powershell
+$env:DATASET_MODE='debug'
+$env:PARQUET_INPUT_PATH='/app/a.parquet'
+docker compose up
+```
 
 ### 2.2 Debug Demonstration on 100 Documents
 
