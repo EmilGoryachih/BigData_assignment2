@@ -302,21 +302,31 @@ The debug scenario exists for two reasons:
 
 This screenshot shows the successful end-to-end bootstrap for the debug mode. The environment starts correctly, the data is prepared in HDFS, the index is built and loaded, and sample search queries are executed.
 
+![Figure S01. Successful bootstrap of the debug run on 100 documents.](screenshots/S01_debug_bootstrap_success.png)
+
 #### Figure S02. Successful indexing output for 100 documents
 
 This screenshot is the key indexing proof for the report. It shows the HDFS counts for the raw corpus, the prepared input, and the four index artifacts. It also shows the corpus statistics output including `doc_count = 100`.
+
+![Figure S02. HDFS counts and corpus statistics for the 100-document debug index.](screenshots/S02_debug_index_counts.png)
 
 #### Figure S03. Debug search for `history`
 
 The `history` query demonstrates that the engine is able to retrieve and rank documents using BM25 instead of just filtering exact matches. The output contains document ids, human-readable titles, and numeric scores.
 
+![Figure S03. Top 10 search results for the query `history` in debug mode.](screenshots/S03_query_history_debug.png)
+
 #### Figure S04. Debug search for `dogs`
 
 The `dogs` query demonstrates another query type with a concrete thematic keyword. The returned documents are ranked by term frequency, document frequency, and document length normalization. Since the engine ranks by document body and not by title, the title alone does not always reveal why the document scored highly. This is expected behavior and not an error.
 
+![Figure S04. Top 10 search results for the query `dogs` in debug mode.](screenshots/S04_query_dogs_debug.png)
+
 #### Figure S05. Debug search for `film`
 
 The `film` query demonstrates a different category of term. In this case, the results are especially useful because many Wikipedia articles in the corpus are about movies, TV series, actors, or entertainment-related topics. This makes the retrieval behavior easier to understand visually from the titles alone.
+
+![Figure S05. Top 10 search results for the query `film` in debug mode.](screenshots/S05_query_film_debug.png)
 
 ### 2.3 Final Demonstration on 1000 Documents
 
@@ -328,9 +338,13 @@ The default `docker compose up` command now runs this final mode automatically. 
 
 This screenshot shows the successful final bootstrap on the full corpus. It confirms that the repository is not limited to the debug subset.
 
+![Figure S06. Successful bootstrap of the full 1000-document run.](screenshots/S06_full_bootstrap_success.png)
+
 #### Figure S07. HDFS counts and full corpus statistics
 
 This screenshot shows that the final HDFS structures were created correctly for the full run. It also confirms that the corpus statistics were computed for all 1000 documents.
+
+![Figure S07. HDFS counts and corpus statistics for the 1000-document full index.](screenshots/S07_full_index_counts.png)
 
 From the verified final run, the following values were produced:
 
@@ -344,6 +358,8 @@ These numbers show that the final full index is substantially larger than the de
 #### Figure S08. Full search for `history of music`
 
 The final query `history of music` demonstrates a multi-term search in the full corpus. This is a better test than a single-term query because it verifies that the ranker sums BM25 contributions across several query terms.
+
+![Figure S08. Top 10 search results for the multi-term query `history of music` on the full index.](screenshots/S08_query_history_of_music_full.png)
 
 ### 2.4 Reflections on the Retrieved Results
 
